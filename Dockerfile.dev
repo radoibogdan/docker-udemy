@@ -1,0 +1,17 @@
+# Specify a base image
+FROM node:alpine
+
+# Create directory inside container
+WORKDIR /usr/src/app
+
+# Copy everything in this directory in the WORKDIR of the container
+COPY . .
+
+# Command runned after COPY ?
+RUN npm install
+
+# Run the application on this port
+EXPOSE 3000
+
+# Will run command "npm run start:dev"
+CMD ["npm", "run", "start:dev"]

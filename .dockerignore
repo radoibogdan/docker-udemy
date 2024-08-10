@@ -1,0 +1,8 @@
+node_modules
+Dockerfile
+Dockerfile.dev
+package-lock.json
+.env
+.idea
+.gitignore
+README.md
