@@ -5,9 +5,11 @@ FROM node:alpine
 WORKDIR /usr/src/app
 
 # CACHE OPTIMIZATION
+## By doing this we avoid doing the npm install if we change the code
+## Together with the next step, these 2 steps will be executed only on package.json change
 COPY ./package.json .
 
-# Command runned after COPY ?
+# CACHE OPTIMIZATION
 RUN npm install
 
 # Copy everything in this directory in the WORKDIR of the container
