@@ -20,7 +20,7 @@ https://www.youtube.com/watch?v=_9AWYlt86B8&t=487s
 ### SSH into container (/bin/bash or /bin/sh)
 ```docker exec -it container_name /bin/bash```
 
-# Build Image
+# BUILD Image
 “t” is the tag name of the image
 “.” specifies the place where the Dockerfile lives
 ```docker build -t image_name .```
@@ -31,19 +31,19 @@ https://www.youtube.com/watch?v=_9AWYlt86B8&t=487s
 ### List images
 ```docker images```
 
-### Delete image
+### DELETE image
 ```docker image rm image_name ```
 
 ### List running docker containers
 ```docker ps```  
 ```docker container ls –all```
  
-### Run image + Port mapping
+### CREATE CONTAINER : Run image + Port mapping
 ```docker run --name container_name -p local_port:container_port image_name```  
 ```docker run --name container_name -p 8000:3000 image_name```  
 https://localhost:8000 
 
-### Stop and then Delete container (stop it before removing it)
+### STOP and then DELETE container (stop it before removing it)
 ```docker stop container_name```  
 ```docker rm container_name container_name2```
 
@@ -103,4 +103,54 @@ https://docs.controlplane.com/guides/push-image
 ### Build and push
 ```docker build -t bogdan.registry.cpln.io/nodeapp:v1 .```  
 ```docker push bogdan.registry.cpln.io/nodeapp:v1```
+
+
+# Building a MULTI container app (React, NodeJs + Mongo DB)
+
+## Mongo DB Container
+This will create a MongoDB container with a mongo image downloaded from DockerHub
+```docker run mongo```
+--rm    => will remove the container after you stop using it
+-d      => deamon mode
+--name  => give a name
+```docker run --name mongodb -d --rm mongo``` 
+
+## NodeJs Backend Container 
+``` docker build -t todoapp . ```
+``` docker run --name todo-app todoapp ```
+
+## Connect MongoDB container with NodeJS Container
+```docker run --name mongodb -d --rm -p 27017:27017 mongo ```
+
+Inspect mongodb container to search for IP so as to connect the 2 containers
+```docker container inspect mongodb ```
+
+Create network
+```docker network create todo-net ```
+
+List networks
+```docker network ls ```
+
+Create mongodb container and Add it to the network
+```docker run --network todo-net --name mongodb -d --rm mongo ```
+
+Create backend nodejs app container and Add it to the network
+```docker run --network todo-net --name todo-app --rm -p 8000:8000 todoapp ```
+
+Create frontend ReactJS and Add it to the network
+it => interactive mode flag for ReactApp
+```docker build -t frontend . ```
+```docker run -name frontend-todo --rm -p 3000:3000 -it frontend ```
+
+## ADD HOT reload (live update of local folder with container)
+### DB container
+Use a named volume DOCKERDB
+/data/db is the directory where the database is the mongodb container (we can't choose it)
+```docker run --name mongodb --network todo-net -v DOCKERDB:/data/db mongo ```
+
+### Back end container
+```docker run --name todo-app --rm -p 8000:8000 --network todo-net -v ${PWD}/src:/app/src todoapp ```
+
+### Front end container
+```docker run --name react-todo --rm -it -p 3000:3000 -v ${PWD}/src:/app/src frontend ```
 
